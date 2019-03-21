@@ -1,183 +1,122 @@
-﻿/// <reference path="scripts/typings/jquery/jquery.d.ts" />
-
-class Greeter {
-    element: HTMLElement;
-    span: HTMLElement;
-    timerToken: number;
-
-    constructor(element: HTMLElement) {
+/// <reference path="scripts/typings/jquery/jquery.d.ts" />
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Greeter = /** @class */ (function () {
+    function Greeter(element) {
         this.element = element;
         this.element.innerHTML += "The time is: ";
         this.span = document.createElement('span');
         this.element.appendChild(this.span);
         this.span.innerText = new Date().toUTCString();
     }
-
-    start() {
-        this.timerToken = setInterval(() => this.span.innerHTML = new Date().toUTCString(), 500);
-    }
-
-    stop() {
+    Greeter.prototype.start = function () {
+        var _this = this;
+        this.timerToken = setInterval(function () { return _this.span.innerHTML = new Date().toUTCString(); }, 500);
+    };
+    Greeter.prototype.stop = function () {
         clearTimeout(this.timerToken);
-    }
-
-}
-
-window.onload = () => {
+    };
+    return Greeter;
+}());
+window.onload = function () {
     var el = document.getElementById('content');
     var greeter = new Greeter(el);
     greeter.start();
 };
-
-
-abstract class Unit {
-    name: string;
-    attack: number;
-    health: number;
-    armor: number;
-    IsAlive: boolean;
-    IsUpgrade: boolean;
-    healthMin: number;
-    healthMax: number;
-    armorMin: number;
-    armorMax: number;
-    attackMin: number;
-    attackMax: number;
-    
-    constructor() { this.IsAlive = true, this.IsUpgrade = true; }
-    abstract move(distanceInMeters: number): void;
-
-    setStartAttributes(): void{
-        this.health = Math.floor(Math.random() * (this.healthMax - this.healthMin)) + this.healthMin;
-        this.armor = Math.floor(Math.random() * (this.armorMax - this.armorMin)) + this.armorMin;
-        this.attack = Math.floor(Math.random() * (this.attackMax - this.attackMin)) + this.attackMin;
+var Unit = /** @class */ (function () {
+    //name: string;
+    function Unit(theName) {
     }
-}
-
-class Swordman extends Unit {    
-   
-    constructor() {
-        super();
-        this.name = "Swordsman";
-        this.healthMin = 200;
-        this.healthMax = 250;
-        this.armorMin = 100;
-        this.armorMax = 150;
-        this.attackMin = 20;
-        this.attackMax = 30;
-        this.setStartAttributes();
+    return Unit;
+}());
+var Swordman = /** @class */ (function (_super) {
+    __extends(Swordman, _super);
+    function Swordman(name) {
+        return _super.call(this, name) || this;
     }
-    
-
-    move(distance) {
+    Swordman.prototype.move = function (distance) {
         console.log("Slithering");
+    };
+    return Swordman;
+}(Unit));
+var Archer = /** @class */ (function (_super) {
+    __extends(Archer, _super);
+    function Archer(name) {
+        return _super.call(this, name) || this;
     }
-}
-
-class Archer extends Unit {
-    constructor() {
-        super();
-        this.name = "Archer";
-    }
-
-    move(distance) {
+    Archer.prototype.move = function (distance) {
         console.log("Swim");
+    };
+    return Archer;
+}(Unit));
+var Wizard = /** @class */ (function (_super) {
+    __extends(Wizard, _super);
+    function Wizard(name) {
+        return _super.call(this, name) || this;
     }
-}
-
-
-
-class Wizard extends Unit {
-    constructor() {
-        super();
-        this.name = "Wizard";
-    }
-
-    move(distance) {
+    Wizard.prototype.move = function (distance) {
         console.log("Swim");
-    }
-}
-
-
-
-let snake: Unit = new Swordman();
+    };
+    return Wizard;
+}(Unit));
+var snake = new Swordman('snake');
 snake.move(5);
-
-let tvarjuka: Unit = new Archer();
+var tvarjuka = new Archer("python");
 tvarjuka.move(40);
-
-tvarjuka = new Wizard();
+tvarjuka = new Wizard("seledka");
 tvarjuka.move(20);
-
-
-
-
 //function universalFunction(getFn: () => string[], algoFn: (a: string[]) => string, setFn: (b: string) => void): void {
-
 //    setFn(algoFn(getFn()));
 //};
-
-
 //function Func1(list: string[]): string {
-
 //    let resultString = (list[0] + list[1] + list[2]).toLocaleUpperCase();
 //    return resultString;
 //}
-
-
 //function Func2(list: string[]): string {
-
 //    let resString = "";
-
 //    let maxNum = Math.max(list[0].length, list[1].length, list[2].length);
-
 //    for (var i = 0; i < maxNum; i++) {
-
 //        for (var j = 0; j < list.length; j++) {
-
 //            if (list[j].length > i) {
 //                resString += list[j][i];
 //            }
 //        }
 //    }
-
 //    return resString;
 //}
-
-
 //function Func3(list: string[]): string {
-
 //    let resString = UniqueCharacters(list[0]) + UniqueCharacters(list[1]) + UniqueCharacters(list[2]);
 //    resString = resString.split('').sort().join('');
-
 //    return resString;
 //}
-
-
 //function UniqueCharacters(test: string): string {
-
 //    let temp = "";
-
 //    for (let i = 0; i < test.length; i++) {
 //        if (temp.indexOf(test.charAt(i)) == - 1) {
 //            temp = temp + test.charAt(i);
 //        }
 //    }
-
 //    return temp;
 //}
-
-
 //function SetValues(resString: string): void {
 //    (<HTMLInputElement>document.getElementById('result')).value = resString;
 //}
-
-
 //function GetValues(): string[] {
 //    let fr = (<HTMLInputElement>document.getElementById('first')).value;
 //    let sc = document.getElementById("second")["value"];
 //    let th = document.getElementById("third")["value"];
-
 //    let list: string[] = [fr, sc, th];
 //    return list;
 //};
+//# sourceMappingURL=app.js.map
