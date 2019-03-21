@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -34,16 +34,75 @@ window.onload = function () {
     var greeter = new Greeter(el);
     greeter.start();
 };
-var Unit = /** @class */ (function () {
-    //name: string;
-    function Unit(theName) {
+var Ring = /** @class */ (function () {
+    function Ring() {
     }
+    Ring.prototype.hit = function (first, second) {
+        var Damage;
+        Damage = first.attack - (second.armor * 0.5);
+        if (second.health < Damage) {
+            second.health = second.health - Damage;
+        }
+        else {
+            second.IsAlive = false;
+        }
+    };
+    Ring.prototype.fight = function (first, second) {
+        while (first.IsAlive && second.IsAlive) {
+            if (second.IsAlive) {
+                this.hit(first, second);
+            }
+            if (first.IsAlive) {
+                this.hit(second, first);
+            }
+        }
+        var winner;
+        if (first.IsAlive) {
+            winner = first;
+        }
+        else {
+            winner = second;
+        }
+        first.printUnit();
+        second.printUnit();
+        return winner;
+    };
+    return Ring;
+}());
+var Unit = /** @class */ (function () {
+    function Unit() {
+        this.IsAlive = true, this.IsUpgrade = true;
+    }
+    Unit.prototype.setStartAttributes = function () {
+        this.health = Math.floor(Math.random() * (this.healthMax - this.healthMin)) + this.healthMin;
+        this.armor = Math.floor(Math.random() * (this.armorMax - this.armorMin)) + this.armorMin;
+        this.attack = Math.floor(Math.random() * (this.attackMax - this.attackMin)) + this.attackMin;
+    };
+    Unit.prototype.printUnit = function () {
+        console.log();
+        console.log("name =" + this.name);
+        console.log("health =" + this.health);
+        console.log("attack =" + this.attack);
+        console.log("armor =" + this.armor);
+        console.log();
+    };
     return Unit;
 }());
 var Swordman = /** @class */ (function (_super) {
     __extends(Swordman, _super);
-    function Swordman(name) {
-        return _super.call(this, name) || this;
+    function Swordman() {
+        var _this = _super.call(this) || this;
+        _this.name = "Swordsman";
+        _this.healthMin = 200;
+        _this.healthMax = 250;
+        _this.armorMin = 100;
+        _this.armorMax = 150;
+        _this.attackMin = 20;
+        _this.attackMax = 30;
+        _this.armorAdd = 3;
+        _this.attackAdd = 2;
+        _this.setStartAttributes();
+        return _this;
     }
     Swordman.prototype.move = function (distance) {
         console.log("Slithering");
@@ -52,8 +111,19 @@ var Swordman = /** @class */ (function (_super) {
 }(Unit));
 var Archer = /** @class */ (function (_super) {
     __extends(Archer, _super);
-    function Archer(name) {
-        return _super.call(this, name) || this;
+    function Archer() {
+        var _this = _super.call(this) || this;
+        _this.name = "Archer";
+        _this.healthMin = 300;
+        _this.healthMax = 400;
+        _this.armorMin = 20;
+        _this.armorMax = 50;
+        _this.attackMin = 100;
+        _this.attackMax = 150;
+        _this.armorAdd = 2;
+        _this.attackAdd = 4;
+        _this.setStartAttributes();
+        return _this;
     }
     Archer.prototype.move = function (distance) {
         console.log("Swim");
@@ -62,20 +132,33 @@ var Archer = /** @class */ (function (_super) {
 }(Unit));
 var Wizard = /** @class */ (function (_super) {
     __extends(Wizard, _super);
-    function Wizard(name) {
-        return _super.call(this, name) || this;
+    function Wizard() {
+        var _this = _super.call(this) || this;
+        _this.name = "Wizard";
+        _this.healthMin = 1000;
+        _this.healthMax = 1500;
+        _this.armorMin = 10;
+        _this.armorMax = 40;
+        _this.attackMin = 50;
+        _this.attackMax = 120;
+        _this.armorAdd = 2;
+        _this.attackAdd = 5;
+        _this.setStartAttributes();
+        return _this;
     }
     Wizard.prototype.move = function (distance) {
         console.log("Swim");
     };
     return Wizard;
 }(Unit));
-var snake = new Swordman('snake');
-snake.move(5);
-var tvarjuka = new Archer("python");
-tvarjuka.move(40);
-tvarjuka = new Wizard("seledka");
-tvarjuka.move(20);
+var snake = new Swordman();
+snake.printUnit();
+var tvarjuka = new Archer();
+tvarjuka.printUnit();
+tvarjuka = new Wizard();
+tvarjuka.printUnit();
+var ring = new Ring();
+var winner = ring.fight(snake, tvarjuka);
 //function universalFunction(getFn: () => string[], algoFn: (a: string[]) => string, setFn: (b: string) => void): void {
 //    setFn(algoFn(getFn()));
 //};

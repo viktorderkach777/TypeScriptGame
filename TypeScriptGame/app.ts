@@ -29,6 +29,57 @@ window.onload = () => {
     greeter.start();
 };
 
+interface IAction {
+    fight(first: Unit, second: Unit);
+    hit(first: Unit, second: Unit);
+}
+
+class Ring implements IAction {
+
+    hit(first: Unit, second: Unit) {
+
+        let Damage: number;
+
+        Damage = first.attack - (second.armor * 0.5);
+
+        if (second.health < Damage) {
+            second.health = second.health - Damage;
+        }
+        else {
+            second.IsAlive = false;
+        }
+    }
+
+    fight(first: Unit, second: Unit): Unit {
+       
+        while (first.IsAlive && second.IsAlive) {
+
+            if (second.IsAlive) {
+                this.hit(first, second);
+            }
+            
+            if (first.IsAlive) {
+                this.hit(second, first);
+            }
+        }
+
+        let winner: Unit;
+
+        if (first.IsAlive) {
+            winner = first;
+        }
+        else {
+            winner = second;
+        }
+
+        first.printUnit();
+        second.printUnit();
+
+        return winner;
+    }
+
+}
+
 
 abstract class Unit {
     name: string;
@@ -43,6 +94,8 @@ abstract class Unit {
     armorMax: number;
     attackMin: number;
     attackMax: number;
+    armorAdd: number;
+    attackAdd: number;
     
     constructor() { this.IsAlive = true, this.IsUpgrade = true; }
     abstract move(distanceInMeters: number): void;
@@ -52,6 +105,17 @@ abstract class Unit {
         this.armor = Math.floor(Math.random() * (this.armorMax - this.armorMin)) + this.armorMin;
         this.attack = Math.floor(Math.random() * (this.attackMax - this.attackMin)) + this.attackMin;
     }
+
+    printUnit(): void {
+        console.log();
+        console.log("name =" + this.name);
+        console.log("health =" + this.health);
+        console.log("attack =" + this.attack);
+        console.log("armor =" + this.armor);
+        console.log();
+    }
+
+    
 }
 
 class Swordman extends Unit {    
@@ -65,6 +129,8 @@ class Swordman extends Unit {
         this.armorMax = 150;
         this.attackMin = 20;
         this.attackMax = 30;
+        this.armorAdd=3;
+        this.attackAdd = 2;
         this.setStartAttributes();
     }
     
@@ -78,6 +144,15 @@ class Archer extends Unit {
     constructor() {
         super();
         this.name = "Archer";
+        this.healthMin = 300;
+        this.healthMax = 400;
+        this.armorMin = 20;
+        this.armorMax = 50;
+        this.attackMin = 100;
+        this.attackMax = 150;
+        this.armorAdd = 2;
+        this.attackAdd = 4;
+        this.setStartAttributes();
     }
 
     move(distance) {
@@ -91,6 +166,15 @@ class Wizard extends Unit {
     constructor() {
         super();
         this.name = "Wizard";
+        this.healthMin = 1000;
+        this.healthMax = 1500;
+        this.armorMin = 10;
+        this.armorMax = 40;
+        this.attackMin = 50;
+        this.attackMax = 120;
+        this.armorAdd = 2;
+        this.attackAdd = 5;
+        this.setStartAttributes();
     }
 
     move(distance) {
@@ -101,13 +185,18 @@ class Wizard extends Unit {
 
 
 let snake: Unit = new Swordman();
-snake.move(5);
+snake.printUnit();
 
 let tvarjuka: Unit = new Archer();
-tvarjuka.move(40);
+tvarjuka.printUnit();
 
 tvarjuka = new Wizard();
-tvarjuka.move(20);
+tvarjuka.printUnit();
+
+
+let ring: IAction = new Ring();
+
+let winner: Unit = ring.fight(snake, tvarjuka);
 
 
 
