@@ -42,12 +42,16 @@ class Ring implements IAction {
 
         Damage = first.attack - (second.armor * 0.5);
 
-        if (second.health < Damage) {
+        //if (second.health > Damage) {
             second.health = second.health - Damage;
-        }
-        else {
-            second.IsAlive = false;
-        }
+        //}
+        //else {
+        //    second.health ==0;
+        //    second.IsAlive = false;
+        //}
+
+        snake.printUnit();
+        tvarjuka.printUnit();
     }
 
     fight(first: Unit, second: Unit): Unit {
@@ -107,12 +111,12 @@ abstract class Unit {
     }
 
     printUnit(): void {
-        console.log();
+        console.log("\n");
         console.log("name =" + this.name);
         console.log("health =" + this.health);
         console.log("attack =" + this.attack);
         console.log("armor =" + this.armor);
-        console.log();
+        console.log("\n");
     }
 
     
@@ -190,14 +194,45 @@ snake.printUnit();
 let tvarjuka: Unit = new Archer();
 tvarjuka.printUnit();
 
-tvarjuka = new Wizard();
-tvarjuka.printUnit();
+//tvarjuka = new Wizard();
+//tvarjuka.printUnit();
 
 
 let ring: IAction = new Ring();
 
-let winner: Unit = ring.fight(snake, tvarjuka);
+//let winner: Unit = ring.fight(snake, tvarjuka);
 
+//ring.hit(snake, tvarjuka);
+
+//ring.hit(tvarjuka, snake);
+
+//ring.hit(snake, tvarjuka);
+
+//ring.hit(tvarjuka, snake);
+
+while (true) {
+
+    if (tvarjuka.health > 0) {
+        ring.hit(snake, tvarjuka);
+    }
+
+    if (tvarjuka.health < 0) {
+        break;
+    }
+
+    if (snake.health > 0) {
+        ring.hit(tvarjuka, snake);
+    }
+
+    if (snake.health < 0) {
+        break;
+    }
+}
+
+
+
+//snake.printUnit();
+//tvarjuka.printUnit();
 
 
 
