@@ -39,47 +39,60 @@ class Ring implements IAction {
     hit(first: Unit, second: Unit) {
 
         let Damage: number;
-
-        Damage = first.attack - (second.armor * 0.5);
-
-        //if (second.health > Damage) {
-            second.health = second.health - Damage;
-        //}
-        //else {
-        //    second.health ==0;
-        //    second.IsAlive = false;
-        //}
-
-        snake.printUnit();
-        tvarjuka.printUnit();
+        Damage = first.attack - (second.armor * 0.5);      
+        second.currentHealth = second.currentHealth - Damage;       
     }
 
-    fight(first: Unit, second: Unit): Unit {
+    fight(first: Unit, second: Unit): [Unit, Unit] {
        
-        while (first.IsAlive && second.IsAlive) {
+        while (true) {
 
-            if (second.IsAlive) {
+            if (second.currentHealth > 0) {
                 this.hit(first, second);
             }
-            
-            if (first.IsAlive) {
+
+            if (second.currentHealth < 0) {
+                break;
+            }
+
+            if (first.currentHealth > 0) {
                 this.hit(second, first);
+            }
+
+            if (first.currentHealth < 0) {
+                break;
             }
         }
 
         let winner: Unit;
+        let looser: Unit;
 
-        if (first.IsAlive) {
+        if (first.currentHealth > 0) {
             winner = first;
+            looser = second;
         }
         else {
             winner = second;
+            looser = first;
         }
 
-        first.printUnit();
-        second.printUnit();
+        looser.buttlesNumber++;
+        looser.killedBy = winner.name;
+        winner.buttlesNumber++;
 
-        return winner;
+        //winner.printUnit();
+        //looser.printUnit();
+
+        winner.armor += (winner.armorAdd / 100) * winner.armor;
+        winner.armor = (Math.round(winner.armor * 100)) / 100;
+        winner.attack += (winner.attackAdd / 100) * winner.attack;
+        winner.attack = (Math.round(winner.attack * 100)) / 100;
+        winner.currentHealth = winner.roundStartHealth;
+        //looser.currentHealth = 0;
+
+        var mytuple:[Unit, Unit]  = [winner, looser];       
+
+        return mytuple;
     }
 
 }
@@ -88,10 +101,9 @@ class Ring implements IAction {
 abstract class Unit {
     name: string;
     attack: number;
-    health: number;
-    armor: number;
-    IsAlive: boolean;
-    IsUpgrade: boolean;
+    currentHealth: number;
+    roundStartHealth: number;
+    armor: number;   
     healthMin: number;
     healthMax: number;
     armorMin: number;
@@ -100,26 +112,29 @@ abstract class Unit {
     attackMax: number;
     armorAdd: number;
     attackAdd: number;
+    buttlesNumber: number;
+    killedBy: string;
     
-    constructor() { this.IsAlive = true, this.IsUpgrade = true; }
+    constructor() { this.buttlesNumber = 0; this.killedBy = "nobody";}
     abstract move(distanceInMeters: number): void;
 
     setStartAttributes(): void{
-        this.health = Math.floor(Math.random() * (this.healthMax - this.healthMin)) + this.healthMin;
+        this.roundStartHealth = Math.floor(Math.random() * (this.healthMax - this.healthMin)) + this.healthMin;
         this.armor = Math.floor(Math.random() * (this.armorMax - this.armorMin)) + this.armorMin;
         this.attack = Math.floor(Math.random() * (this.attackMax - this.attackMin)) + this.attackMin;
+        this.currentHealth = this.roundStartHealth;
     }
 
     printUnit(): void {
         console.log("\n");
-        console.log("name =" + this.name);
-        console.log("health =" + this.health);
-        console.log("attack =" + this.attack);
-        console.log("armor =" + this.armor);
+        console.log("name = " + this.name);
+        console.log("currentHealth = " + this.currentHealth);
+        console.log("attack = " + this.attack);
+        console.log("armor = " + this.armor);
+        console.log("buttlesNumber = " + this.buttlesNumber);
+        console.log("killedBy = " + this.killedBy);
         console.log("\n");
-    }
-
-    
+    }    
 }
 
 class Swordman extends Unit {    
@@ -127,12 +142,12 @@ class Swordman extends Unit {
     constructor() {
         super();
         this.name = "Swordsman";
-        this.healthMin = 200;
-        this.healthMax = 250;
+        this.healthMin = 200;//200;
+        this.healthMax = 280;//250;
         this.armorMin = 100;
         this.armorMax = 150;
-        this.attackMin = 20;
-        this.attackMax = 30;
+        this.attackMin = 70;//20
+        this.attackMax = 100;//30;
         this.armorAdd=3;
         this.attackAdd = 2;
         this.setStartAttributes();
@@ -172,10 +187,10 @@ class Wizard extends Unit {
         this.name = "Wizard";
         this.healthMin = 1000;
         this.healthMax = 1500;
-        this.armorMin = 10;
-        this.armorMax = 40;
-        this.attackMin = 50;
-        this.attackMax = 120;
+        this.armorMin = 10;//10;
+        this.armorMax = 20;//40;
+        this.attackMin = 50;//50;
+        this.attackMax = 70;//120;
         this.armorAdd = 2;
         this.attackAdd = 5;
         this.setStartAttributes();
@@ -186,122 +201,67 @@ class Wizard extends Unit {
     }
 }
 
-
-
-let snake: Unit = new Swordman();
-snake.printUnit();
-
-let tvarjuka: Unit = new Archer();
-tvarjuka.printUnit();
-
-//tvarjuka = new Wizard();
-//tvarjuka.printUnit();
-
-
 let ring: IAction = new Ring();
 
-//let winner: Unit = ring.fight(snake, tvarjuka);
+let key: number;
+let array: Unit[] = new Array();
+let temp: Unit;
+let iteratonsCount = 300;
 
-//ring.hit(snake, tvarjuka);
+for (var i = 0; i < iteratonsCount; i++) {
 
-//ring.hit(tvarjuka, snake);
+    key = Math.floor(Math.random() * (4 - 1)) + 1;    
 
-//ring.hit(snake, tvarjuka);
+    if (key == 1) {
+        temp = new Swordman();       
+    }
+    else if (key == 2) {
+        temp = new Archer();
+    }
+    else {
+        temp = new Wizard();
+    }
 
-//ring.hit(tvarjuka, snake);
+    temp.name +=  "_" + (i + 1).toString();
+    array.push(temp);
+}
+
+
+let rivalIndex1: number;
+let rivalIndex2: number;
+let arrayOfLoosers: Unit[] = new Array();
+
 
 while (true) {
 
-    if (tvarjuka.health > 0) {
-        ring.hit(snake, tvarjuka);
-    }
+    rivalIndex1 = Math.floor(Math.random() * (array.length));
+    let rival1 = array.splice(rivalIndex1, 1)[0];
 
-    if (tvarjuka.health < 0) {
-        break;
-    }
+    rivalIndex2 = Math.floor(Math.random() * (array.length));
+    let rival2 = array.splice(rivalIndex2, 1)[0];
 
-    if (snake.health > 0) {
-        ring.hit(tvarjuka, snake);
-    }
+    let players = ring.fight(rival1, rival2);
+    array.push(players[0]);
+    arrayOfLoosers.push(players[1]);
 
-    if (snake.health < 0) {
+    if (array.length == 1) {
         break;
     }
 }
 
+//console.log("------------------------------------------");
 
+for (var i = 0; i < arrayOfLoosers.length; i++) {
 
-//snake.printUnit();
-//tvarjuka.printUnit();
+    arrayOfLoosers[i].printUnit();
+}
 
+console.log("------------------------------------------");
+array[0].printUnit();
 
+//for (var i = 0; i < array.length; i++) {
 
-//function universalFunction(getFn: () => string[], algoFn: (a: string[]) => string, setFn: (b: string) => void): void {
-
-//    setFn(algoFn(getFn()));
-//};
-
-
-//function Func1(list: string[]): string {
-
-//    let resultString = (list[0] + list[1] + list[2]).toLocaleUpperCase();
-//    return resultString;
+//    array[i].printUnit();
 //}
 
 
-//function Func2(list: string[]): string {
-
-//    let resString = "";
-
-//    let maxNum = Math.max(list[0].length, list[1].length, list[2].length);
-
-//    for (var i = 0; i < maxNum; i++) {
-
-//        for (var j = 0; j < list.length; j++) {
-
-//            if (list[j].length > i) {
-//                resString += list[j][i];
-//            }
-//        }
-//    }
-
-//    return resString;
-//}
-
-
-//function Func3(list: string[]): string {
-
-//    let resString = UniqueCharacters(list[0]) + UniqueCharacters(list[1]) + UniqueCharacters(list[2]);
-//    resString = resString.split('').sort().join('');
-
-//    return resString;
-//}
-
-
-//function UniqueCharacters(test: string): string {
-
-//    let temp = "";
-
-//    for (let i = 0; i < test.length; i++) {
-//        if (temp.indexOf(test.charAt(i)) == - 1) {
-//            temp = temp + test.charAt(i);
-//        }
-//    }
-
-//    return temp;
-//}
-
-
-//function SetValues(resString: string): void {
-//    (<HTMLInputElement>document.getElementById('result')).value = resString;
-//}
-
-
-//function GetValues(): string[] {
-//    let fr = (<HTMLInputElement>document.getElementById('first')).value;
-//    let sc = document.getElementById("second")["value"];
-//    let th = document.getElementById("third")["value"];
-
-//    let list: string[] = [fr, sc, th];
-//    return list;
-//};

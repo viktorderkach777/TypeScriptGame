@@ -40,53 +40,68 @@ var Ring = /** @class */ (function () {
     Ring.prototype.hit = function (first, second) {
         var Damage;
         Damage = first.attack - (second.armor * 0.5);
-        //if (second.health > Damage) {
-        second.health = second.health - Damage;
-        //}
-        //else {
-        //    second.health ==0;
-        //    second.IsAlive = false;
-        //}
-        snake.printUnit();
-        tvarjuka.printUnit();
+        second.currentHealth = second.currentHealth - Damage;
     };
     Ring.prototype.fight = function (first, second) {
-        while (first.IsAlive && second.IsAlive) {
-            if (second.IsAlive) {
+        while (true) {
+            if (second.currentHealth > 0) {
                 this.hit(first, second);
             }
-            if (first.IsAlive) {
+            if (second.currentHealth < 0) {
+                break;
+            }
+            if (first.currentHealth > 0) {
                 this.hit(second, first);
+            }
+            if (first.currentHealth < 0) {
+                break;
             }
         }
         var winner;
-        if (first.IsAlive) {
+        var looser;
+        if (first.currentHealth > 0) {
             winner = first;
+            looser = second;
         }
         else {
             winner = second;
+            looser = first;
         }
-        first.printUnit();
-        second.printUnit();
-        return winner;
+        looser.buttlesNumber++;
+        looser.killedBy = winner.name;
+        winner.buttlesNumber++;
+        //winner.printUnit();
+        //looser.printUnit();
+        winner.armor += (winner.armorAdd / 100) * winner.armor;
+        winner.armor = (Math.round(winner.armor * 100)) / 100;
+        winner.attack += (winner.attackAdd / 100) * winner.attack;
+        winner.attack = (Math.round(winner.attack * 100)) / 100;
+        winner.currentHealth = winner.roundStartHealth;
+        //looser.currentHealth = 0;
+        var mytuple = [winner, looser];
+        return mytuple;
     };
     return Ring;
 }());
 var Unit = /** @class */ (function () {
     function Unit() {
-        this.IsAlive = true, this.IsUpgrade = true;
+        this.buttlesNumber = 0;
+        this.killedBy = "nobody";
     }
     Unit.prototype.setStartAttributes = function () {
-        this.health = Math.floor(Math.random() * (this.healthMax - this.healthMin)) + this.healthMin;
+        this.roundStartHealth = Math.floor(Math.random() * (this.healthMax - this.healthMin)) + this.healthMin;
         this.armor = Math.floor(Math.random() * (this.armorMax - this.armorMin)) + this.armorMin;
         this.attack = Math.floor(Math.random() * (this.attackMax - this.attackMin)) + this.attackMin;
+        this.currentHealth = this.roundStartHealth;
     };
     Unit.prototype.printUnit = function () {
         console.log("\n");
-        console.log("name =" + this.name);
-        console.log("health =" + this.health);
-        console.log("attack =" + this.attack);
-        console.log("armor =" + this.armor);
+        console.log("name = " + this.name);
+        console.log("currentHealth = " + this.currentHealth);
+        console.log("attack = " + this.attack);
+        console.log("armor = " + this.armor);
+        console.log("buttlesNumber = " + this.buttlesNumber);
+        console.log("killedBy = " + this.killedBy);
         console.log("\n");
     };
     return Unit;
@@ -96,12 +111,12 @@ var Swordman = /** @class */ (function (_super) {
     function Swordman() {
         var _this = _super.call(this) || this;
         _this.name = "Swordsman";
-        _this.healthMin = 200;
-        _this.healthMax = 250;
+        _this.healthMin = 200; //200;
+        _this.healthMax = 280; //250;
         _this.armorMin = 100;
         _this.armorMax = 150;
-        _this.attackMin = 20;
-        _this.attackMax = 30;
+        _this.attackMin = 70; //20
+        _this.attackMax = 100; //30;
         _this.armorAdd = 3;
         _this.attackAdd = 2;
         _this.setStartAttributes();
@@ -140,10 +155,10 @@ var Wizard = /** @class */ (function (_super) {
         _this.name = "Wizard";
         _this.healthMin = 1000;
         _this.healthMax = 1500;
-        _this.armorMin = 10;
-        _this.armorMax = 40;
-        _this.attackMin = 50;
-        _this.attackMax = 120;
+        _this.armorMin = 10; //10;
+        _this.armorMax = 20; //40;
+        _this.attackMin = 50; //50;
+        _this.attackMax = 70; //120;
         _this.armorAdd = 2;
         _this.attackAdd = 5;
         _this.setStartAttributes();
@@ -154,75 +169,47 @@ var Wizard = /** @class */ (function (_super) {
     };
     return Wizard;
 }(Unit));
-var snake = new Swordman();
-snake.printUnit();
-var tvarjuka = new Archer();
-tvarjuka.printUnit();
-//tvarjuka = new Wizard();
-//tvarjuka.printUnit();
 var ring = new Ring();
-//let winner: Unit = ring.fight(snake, tvarjuka);
-//ring.hit(snake, tvarjuka);
-//ring.hit(tvarjuka, snake);
-//ring.hit(snake, tvarjuka);
-//ring.hit(tvarjuka, snake);
+var key;
+var array = new Array();
+var temp;
+var iteratonsCount = 300;
+for (var i = 0; i < iteratonsCount; i++) {
+    key = Math.floor(Math.random() * (4 - 1)) + 1;
+    if (key == 1) {
+        temp = new Swordman();
+    }
+    else if (key == 2) {
+        temp = new Archer();
+    }
+    else {
+        temp = new Wizard();
+    }
+    temp.name += "_" + (i + 1).toString();
+    array.push(temp);
+}
+var rivalIndex1;
+var rivalIndex2;
+var arrayOfLoosers = new Array();
 while (true) {
-    if (tvarjuka.health > 0) {
-        ring.hit(snake, tvarjuka);
-    }
-    if (tvarjuka.health < 0) {
-        break;
-    }
-    if (snake.health > 0) {
-        ring.hit(tvarjuka, snake);
-    }
-    if (snake.health < 0) {
+    rivalIndex1 = Math.floor(Math.random() * (array.length));
+    var rival1 = array.splice(rivalIndex1, 1)[0];
+    rivalIndex2 = Math.floor(Math.random() * (array.length));
+    var rival2 = array.splice(rivalIndex2, 1)[0];
+    var players = ring.fight(rival1, rival2);
+    array.push(players[0]);
+    arrayOfLoosers.push(players[1]);
+    if (array.length == 1) {
         break;
     }
 }
-//snake.printUnit();
-//tvarjuka.printUnit();
-//function universalFunction(getFn: () => string[], algoFn: (a: string[]) => string, setFn: (b: string) => void): void {
-//    setFn(algoFn(getFn()));
-//};
-//function Func1(list: string[]): string {
-//    let resultString = (list[0] + list[1] + list[2]).toLocaleUpperCase();
-//    return resultString;
+//console.log("------------------------------------------");
+for (var i = 0; i < arrayOfLoosers.length; i++) {
+    arrayOfLoosers[i].printUnit();
+}
+console.log("------------------------------------------");
+array[0].printUnit();
+//for (var i = 0; i < array.length; i++) {
+//    array[i].printUnit();
 //}
-//function Func2(list: string[]): string {
-//    let resString = "";
-//    let maxNum = Math.max(list[0].length, list[1].length, list[2].length);
-//    for (var i = 0; i < maxNum; i++) {
-//        for (var j = 0; j < list.length; j++) {
-//            if (list[j].length > i) {
-//                resString += list[j][i];
-//            }
-//        }
-//    }
-//    return resString;
-//}
-//function Func3(list: string[]): string {
-//    let resString = UniqueCharacters(list[0]) + UniqueCharacters(list[1]) + UniqueCharacters(list[2]);
-//    resString = resString.split('').sort().join('');
-//    return resString;
-//}
-//function UniqueCharacters(test: string): string {
-//    let temp = "";
-//    for (let i = 0; i < test.length; i++) {
-//        if (temp.indexOf(test.charAt(i)) == - 1) {
-//            temp = temp + test.charAt(i);
-//        }
-//    }
-//    return temp;
-//}
-//function SetValues(resString: string): void {
-//    (<HTMLInputElement>document.getElementById('result')).value = resString;
-//}
-//function GetValues(): string[] {
-//    let fr = (<HTMLInputElement>document.getElementById('first')).value;
-//    let sc = document.getElementById("second")["value"];
-//    let th = document.getElementById("third")["value"];
-//    let list: string[] = [fr, sc, th];
-//    return list;
-//};
 //# sourceMappingURL=app.js.map
